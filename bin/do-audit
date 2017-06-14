@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+import os
+import sys
+
+try:
+    # Installed system wide
+    from do_audit.command_line import cli
+except ImportError:
+    # Try to look for the source code locally
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+    from do_audit.command_line import cli
+
+
+if __name__ == '__main__':
+    cli()

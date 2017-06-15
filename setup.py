@@ -59,6 +59,7 @@ setup(
         'python-dateutil>=2.6.0',
         'python-digitalocean>=1.11',
         'requests>=2.18.1',
+        'six>=1.10.0',
     ],
     extras_require={
         'testing': [

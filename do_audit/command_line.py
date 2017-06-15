@@ -8,6 +8,7 @@ import click
 import dateutil.parser
 import dns.zone
 import requests
+import six
 
 from do_audit.utils import add_options, get_do_manager, click_echo_kvp
 
@@ -195,7 +196,11 @@ def ping_domains(ctx, timeout, access_token, verbose):
                         click.echo('    {}'.format(repr(e)))
                 else:
                     # Source: https://stackoverflow.com/a/36357465
-                    ip, port = response.raw._fp.fp.raw._sock.getpeername()
+                    if six.PY2:
+                        ip, port = response.raw._fp.fp._sock.getpeername()
+                    else:
+                        ip, port = response.raw._fp.fp.raw._sock.getpeername()
+
                     droplet = '{} ({})'.format(do_droplets[ip][0], do_droplets[ip][1]) if ip in do_droplets else '-'
                     is_nginx = 'nginx' in response.text.lower()
 

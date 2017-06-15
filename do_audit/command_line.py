@@ -6,6 +6,7 @@ import os
 import click
 import dateutil.parser
 import digitalocean
+import dns.zone
 
 from do_audit.utils import click_echo_kvp
 
@@ -96,6 +97,41 @@ def droplets(ctx, verbose):
 
         if n != len(do_droplets):
             click.echo()  # Print a new line between droplets
+
+
+@cli.command()
+@click.option('--verbose', '-v', is_flag=True)
+@click.pass_context
+def domains(ctx, verbose):
+    """List your domains"""
+    do_domains = ctx.obj.get_all_domains()
+
+    for n, domain in enumerate(do_domains, start=1):
+        # We could use Digital Ocean domain records API endpoint but parsing the zone file is *much* quicker
+        zone = dns.zone.from_text(domain.zone_file)
+
+        domain = zone.origin.to_text(omit_final_dot=True)
+        click.secho('# {}'.format(domain), fg='green', bold=True)
+
+        for key, value in zone.nodes.items():
+            subdomain = key.to_text(omit_final_dot=True)
+
+            for rd in value.rdatasets:
+                # Non verbose output only contains A and CNAME records
+                if not verbose and rd.rdtype not in [dns.rdatatype.A, dns.rdatatype.CNAME]:
+                    continue
+
+                for address in rd:
+                    click.echo(
+                        '{name:<35} {record_type:<10} {address}'.format(
+                            name=subdomain,
+                            record_type=dns.rdatatype.to_text(rd.rdtype),
+                            address=str(address),
+                        )
+                    )
+
+        if n != len(do_domains):
+            click.echo()  # Print a new line between domains
 
 if __name__ == '__main__':
     cli()

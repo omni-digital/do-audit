@@ -1,6 +1,9 @@
+# -*- coding: utf-8 -*-
 """
 do-audit command line utility related code
 """
+from __future__ import unicode_literals
+
 import os
 
 import click
@@ -11,6 +14,8 @@ import requests
 
 from do_audit.utils import click_echo_kvp
 
+
+click.disable_unicode_literals_warning = True
 
 DO_ACCESS_TOKEN_ENV = 'DO_ACCESS_TOKEN'
 

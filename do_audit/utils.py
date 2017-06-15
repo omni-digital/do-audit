@@ -1,6 +1,9 @@
+# -*- coding: utf-8 -*-
 """
 do-audit utils
 """
+from __future__ import unicode_literals
+
 import click
 
 

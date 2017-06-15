@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 """
 do-audit - Audit your Digital Ocean account and make sure you know what's up
 """
+from __future__ import unicode_literals
 
 
 __title__ = 'do-audit'

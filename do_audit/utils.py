@@ -4,12 +4,61 @@ do-audit utils
 """
 from __future__ import unicode_literals
 
+import os
+
 import click
+import digitalocean
+
+
+DO_ACCESS_TOKEN_ENV = 'DO_ACCESS_TOKEN'
+
+
+def add_options(options):
+    """
+    Helper function for grouping click options
+
+    Source:
+        https://github.com/pallets/click/issues/108#issuecomment-255547347
+    """
+    def _add_options(func):
+        for option in reversed(options):
+            func = option(func)
+        return func
+    return _add_options
+
+
+def get_do_manager(access_token):
+    """
+    Helper function for initializing `digitalocean.Manager` instance
+
+    :param access_token: Digital Ocean access token
+    :type access_token: str
+    :returns: Digital Ocean manager instance
+    :rtype: digitalocean.Manager
+    :raises click.ClickException: when the token isn't passed or is incorrect
+    """
+    token = access_token or os.getenv(DO_ACCESS_TOKEN_ENV)
+
+    if not token:
+        raise click.ClickException(
+            "You need to either pass your Digital Ocean access token explicitly ('-t ...') "
+            "or set is as an environment variable ('export {DO_ACCESS_TOKEN_ENV}=...').".format(
+                DO_ACCESS_TOKEN_ENV=DO_ACCESS_TOKEN_ENV,
+            )
+        )
+
+    try:
+        manager = digitalocean.Manager(token=token)
+        manager.get_account()  # To make sure we're authenticated
+    except digitalocean.Error as e:
+        raise click.ClickException("We were unable to connect to your Digital Ocean account: '{}'".format(e))
+
+    return manager
 
 
 def click_echo_kvp(key, value, padding=20, color='green'):
     """
-    Helper class for pretty printing key value pairs in click
+    Helper function for pretty printing key value pairs in click
 
     :param key: item key
     :type key: str

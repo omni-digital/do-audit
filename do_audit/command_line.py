@@ -4,53 +4,45 @@ do-audit command line utility related code
 """
 from __future__ import unicode_literals
 
-import os
-
 import click
 import dateutil.parser
-import digitalocean
 import dns.zone
 import requests
 
-from do_audit.utils import click_echo_kvp
+from do_audit.utils import add_options, get_do_manager, click_echo_kvp
 
 
 click.disable_unicode_literals_warning = True
 
-DO_ACCESS_TOKEN_ENV = 'DO_ACCESS_TOKEN'
+global_options = [
+    click.option('--access-token', '-t', type=str, help="Digital Ocean API access token."),
+    click.option('--verbose', '-v', is_flag=True, help="Show extra information."),
+]
 
 
 @click.group()
-@click.option('--access-token', '-t', type=str, help="Digital Ocean API access token.")
+@add_options(global_options)
 @click.pass_context
-def cli(ctx, access_token):
+def cli(ctx, access_token, **kwargs):
     """
     Simple command line interface for doing an audit of your Digital Ocean account and making sure
     you know what's up.
 
     See https://github.com/omni-digital/do-audit for more info.
     """
-    token = access_token or os.getenv(DO_ACCESS_TOKEN_ENV)
-
-    if not token:
-        raise click.ClickException(
-            "You need to either pass your Digital Ocean access token explicitly ('-t ...') "
-            "or set is as an environment variable ('export {DO_ACCESS_TOKEN_ENV}=...').".format(
-                DO_ACCESS_TOKEN_ENV=DO_ACCESS_TOKEN_ENV,
-            )
-        )
-
-    try:
-        ctx.obj = digitalocean.Manager(token=token)
-        ctx.obj.get_account()  # To make sure we're authenticated
-    except digitalocean.Error as e:
-        raise click.ClickException("We were unable to connect to your Digital Ocean account: {}".format(repr(e)))
+    # If it's not passed here, it could be passed as subcommand option
+    if access_token:
+        ctx.obj = get_do_manager(access_token)
 
 
 @cli.command()
+@add_options(global_options)
 @click.pass_context
-def account(ctx):
+def account(ctx, access_token, verbose):
     """Show basic account info"""
+    if not ctx.obj:
+        ctx.obj = get_do_manager(access_token)
+
     do_account = ctx.obj.get_account()
 
     email = do_account.email
@@ -64,15 +56,20 @@ def account(ctx):
     click_echo_kvp('Email', email)
     click_echo_kvp('Status', status)
     click_echo_kvp('Droplet limit', do_account.droplet_limit)
-    click_echo_kvp('Floating IP limit', do_account.floating_ip_limit)
-    click_echo_kvp('UUID', do_account.uuid)
+
+    if verbose:
+        click_echo_kvp('Floating IP limit', do_account.floating_ip_limit)
+        click_echo_kvp('UUID', do_account.uuid)
 
 
 @cli.command()
-@click.option('--verbose', '-v', is_flag=True, help="Show extra information.")
+@add_options(global_options)
 @click.pass_context
-def droplets(ctx, verbose):
+def droplets(ctx, access_token, verbose):
     """List your droplets"""
+    if not ctx.obj:
+        ctx.obj = get_do_manager(access_token)
+
     do_droplets = ctx.obj.get_all_droplets()
 
     for n, droplet in enumerate(do_droplets, start=1):
@@ -111,10 +108,13 @@ def droplets(ctx, verbose):
 
 
 @cli.command()
-@click.option('--verbose', '-v', is_flag=True, help="Show extra information.")
+@add_options(global_options)
 @click.pass_context
-def domains(ctx, verbose):
+def domains(ctx, access_token, verbose):
     """List your domains"""
+    if not ctx.obj:
+        ctx.obj = get_do_manager(access_token)
+
     do_domains = ctx.obj.get_all_domains()
 
     for n, domain in enumerate(do_domains, start=1):
@@ -147,10 +147,13 @@ def domains(ctx, verbose):
 
 @cli.command(name='ping-domains')
 @click.option('--timeout', '-t', type=int, default=3, help="How many seconds to wait for the server before giving up.")
-@click.option('--verbose', '-v', is_flag=True, help="Show extra information.")
+@add_options(global_options)
 @click.pass_context
-def ping_domains(ctx, timeout, verbose):
+def ping_domains(ctx, timeout, access_token, verbose):
     """Ping your domains and see what's the response"""
+    if not ctx.obj:
+        ctx.obj = get_do_manager(access_token)
+
     do_domains = ctx.obj.get_all_domains()
     do_droplets = {
         droplet.ip_address: (droplet.name, 'https://cloud.digitalocean.com/droplets/{}/graphs'.format(droplet.id))

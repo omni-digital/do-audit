@@ -61,7 +61,10 @@ setup(
         'requests>=2.18.1',
     ],
     extras_require={
-        'testing': ['pytest'],
+        'testing': [
+            'pytest',
+            'pytest-mock',
+        ],
     },
     keywords='digital ocean audit do cli',
     classifiers=[

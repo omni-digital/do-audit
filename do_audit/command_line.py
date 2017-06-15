@@ -40,7 +40,11 @@ def cli(ctx, access_token):
             )
         )
 
-    ctx.obj = digitalocean.Manager(token=token)
+    try:
+        ctx.obj = digitalocean.Manager(token=token)
+        ctx.obj.get_account()  # To make sure we're authenticated
+    except digitalocean.Error as e:
+        raise click.ClickException("We were unable to connect to your Digital Ocean account: {}".format(repr(e)))
 
 
 @cli.command()

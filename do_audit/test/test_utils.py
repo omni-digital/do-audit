@@ -4,7 +4,7 @@ Test do_audit.utils file
 """
 from __future__ import unicode_literals
 
-import uuid
+from uuid import uuid4
 
 import click
 import pytest
@@ -14,7 +14,7 @@ from do_audit.utils import click_echo_kvp
 
 @pytest.mark.parametrize('key,value,padding,color', [
     ('key', 'value', 50, 'red'),
-    (str(uuid.uuid4()), str(uuid.uuid4()), 10, 'green'),
+    (str(uuid4()), str(uuid4()), 10, 'green'),
 ])
 def test_click_echo_kvp(key, value, padding, color, mocker):
     """

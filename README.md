@@ -5,6 +5,21 @@ The script can currently list your droplets and domains with their basic
 information, and has a `ping-domains` command which tries to send a test
 request to all your domains and checks the response for you.
 
+## Installation
+From PyPI (recommended):
+
+```
+$ pip install do-audit
+```
+
+With `git clone`:
+
+```shell
+$ git clone https://github.com/omni-digital/do-audit
+$ pip install -r do-audit/requirements.txt
+$ cd do-audit/bin
+```
+
 ## Usage
 To use the script you'll need Digital Ocean [access token][do access token]
 and either save it as an environment variable (`$ export DO_ACCESS_TOKEN='...'`)

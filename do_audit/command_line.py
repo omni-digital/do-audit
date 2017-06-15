@@ -7,6 +7,7 @@ import click
 import dateutil.parser
 import digitalocean
 import dns.zone
+import requests
 
 from do_audit.utils import click_echo_kvp
 
@@ -40,7 +41,7 @@ def cli(ctx, access_token):
 @cli.command()
 @click.pass_context
 def account(ctx):
-    """Show your Digital Ocean account basic info"""
+    """Show basic account info"""
     do_account = ctx.obj.get_account()
 
     email = do_account.email
@@ -59,7 +60,7 @@ def account(ctx):
 
 
 @cli.command()
-@click.option('--verbose', '-v', is_flag=True)
+@click.option('--verbose', '-v', is_flag=True, help="Show extra information.")
 @click.pass_context
 def droplets(ctx, verbose):
     """List your droplets"""
@@ -93,6 +94,7 @@ def droplets(ctx, verbose):
             click_echo_kvp('Features', ', '.join(droplet.features))
             click_echo_kvp('Region', droplet.region['name'])
 
+        click_echo_kvp('URL', 'https://cloud.digitalocean.com/droplets/{}/graphs'.format(droplet.id))
         click_echo_kvp('Created at', created_at.strftime('%a, %x %X'))
 
         if n != len(do_droplets):
@@ -100,7 +102,7 @@ def droplets(ctx, verbose):
 
 
 @cli.command()
-@click.option('--verbose', '-v', is_flag=True)
+@click.option('--verbose', '-v', is_flag=True, help="Show extra information.")
 @click.pass_context
 def domains(ctx, verbose):
     """List your domains"""
@@ -132,6 +134,68 @@ def domains(ctx, verbose):
 
         if n != len(do_domains):
             click.echo()  # Print a new line between domains
+
+
+@cli.command(name='ping-domains')
+@click.option('--timeout', '-t', type=int, default=3, help="How many seconds to wait for the server before giving up.")
+@click.option('--verbose', '-v', is_flag=True, help="Show extra information.")
+@click.pass_context
+def ping_domains(ctx, timeout, verbose):
+    """Ping your domains and see what's the response"""
+    do_domains = ctx.obj.get_all_domains()
+    do_droplets = {
+        droplet.ip_address: (droplet.name, 'https://cloud.digitalocean.com/droplets/{}/graphs'.format(droplet.id))
+        for droplet in ctx.obj.get_all_droplets()
+    }
+
+    for n, domain in enumerate(do_domains, start=1):
+        # We could use Digital Ocean domain records API endpoint but parsing the zone file is *much* quicker
+        zone = dns.zone.from_text(domain.zone_file)
+
+        domain = zone.origin.to_text(omit_final_dot=True)
+        click.secho('# {}'.format(domain), fg='green', bold=True)
+
+        for record in zone.nodes:
+            absolute_url = record.derelativize(zone.origin).to_text(omit_final_dot=True)
+            url_http = 'http://' + absolute_url
+            url_https = 'https://' + absolute_url
+
+            for url in [url_http, url_https]:
+                click.secho('- {}'.format(url), bold=True)
+
+                try:
+                    response = requests.get(url, timeout=timeout, stream=True)
+                except requests.exceptions.Timeout as e:
+                    click.secho("    Request timed out", fg='red')
+                    if verbose:
+                        click.echo('    {}'.format(repr(e)))
+                except requests.exceptions.SSLError as e:
+                    click.secho("    SSL error", fg='red')
+                    if verbose:
+                        click.echo('    {}'.format(repr(e)))
+                except requests.exceptions.ConnectionError as e:
+                    click.secho("    Connection error", fg='red')
+                    if verbose:
+                        click.echo('    {}'.format(repr(e)))
+                except requests.exceptions.TooManyRedirects as e:
+                    click.secho("    Too many redirects", fg='red')
+                    if verbose:
+                        click.echo('    {}'.format(repr(e)))
+                else:
+                    # Source: https://stackoverflow.com/a/36357465
+                    ip, port = response.raw._fp.fp.raw._sock.getpeername()
+                    droplet = '{} ({})'.format(do_droplets[ip][0], do_droplets[ip][1]) if ip in do_droplets else '-'
+                    is_nginx = 'nginx' in response.text.lower()
+
+                    click_echo_kvp('    Status code', '{} ({})'.format(response.status_code, response.reason))
+                    click_echo_kvp('    IP', ip)
+                    click_echo_kvp('    Port', port)
+                    click_echo_kvp('    Droplet', droplet)
+                    click_echo_kvp('    Default NGINX', 'Yes' if is_nginx else 'No')
+
+        if n != len(do_domains):
+            click.echo()  # Print a new line between domains
+
 
 if __name__ == '__main__':
     cli()

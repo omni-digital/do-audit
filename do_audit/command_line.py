@@ -85,7 +85,7 @@ def droplets(ctx, access_token, verbose):
 
         click.secho(
             '# {} ({})'.format(droplet.name, droplet.status),
-            fg='green', bold=True,
+            fg='yellow', bold=True,
         )
         click_echo_kvp('OS', do_os)
         click_echo_kvp('IP', droplet.ip_address)
@@ -123,7 +123,7 @@ def domains(ctx, access_token, verbose):
         zone = dns.zone.from_text(domain.zone_file)
 
         domain = zone.origin.to_text(omit_final_dot=True)
-        click.secho('# {}'.format(domain), fg='green', bold=True)
+        click.secho('# {}'.format(domain), fg='yellow', bold=True)
 
         for key, value in zone.nodes.items():
             subdomain = key.to_text(omit_final_dot=True)
@@ -166,7 +166,7 @@ def ping_domains(ctx, timeout, access_token, verbose):
         zone = dns.zone.from_text(domain.zone_file)
 
         domain = zone.origin.to_text(omit_final_dot=True)
-        click.secho('# {}'.format(domain), fg='green', bold=True)
+        click.secho('# {}'.format(domain), fg='yellow', bold=True)
 
         for record in zone.nodes:
             absolute_url = record.derelativize(zone.origin).to_text(omit_final_dot=True)

@@ -102,7 +102,7 @@ def droplets(ctx, access_token, output_file, data_format, verbose):
 
     dataset = tablib.Dataset(headers=headers)
 
-    for n, droplet in enumerate(do_droplets, start=1):
+    for droplet in do_droplets:
         created_at = dateutil.parser.parse(droplet.created_at)
 
         # Try to guess droplet OS
@@ -168,7 +168,7 @@ def domains(ctx, access_token, output_file, data_format, verbose):
     headers = ['Domain', 'Subdomain', 'Record type', 'Destination']
     dataset = tablib.Dataset(headers=headers)
 
-    for n, domain in enumerate(do_domains, start=1):
+    for domain in do_domains:
         # We could use Digital Ocean domain records API endpoint but parsing the zone file is *much* quicker
         zone = dns.zone.from_text(domain.zone_file)
         domain = zone.origin.to_text(omit_final_dot=True)
@@ -225,16 +225,24 @@ def ping_domains(ctx, timeout, access_token, output_file, data_format, verbose):
 
     do_domains = ctx.obj.get_all_domains()
     do_droplets = {
-        droplet.ip_address: (droplet.name, 'https://cloud.digitalocean.com/droplets/{}/graphs'.format(droplet.id))
+        droplet.ip_address: (droplet.name, droplet_url(droplet.id))
         for droplet in ctx.obj.get_all_droplets()
     }
+
+    # Create dataset with the data we want
+    headers = ['Domain', 'URL', 'Status code', 'IP', 'Port', 'Droplet', 'Default NGINX', 'Error', 'Exception']
+    dataset = tablib.Dataset(headers=headers)
+
+    if output_file:
+        click.secho('Working...', fg='yellow')
 
     for n, domain in enumerate(do_domains, start=1):
         # We could use Digital Ocean domain records API endpoint but parsing the zone file is *much* quicker
         zone = dns.zone.from_text(domain.zone_file)
-
         domain = zone.origin.to_text(omit_final_dot=True)
-        click.secho('# {}'.format(domain), fg='yellow', bold=True)
+
+        if not output_file:
+            click.secho('# {}'.format(domain), fg='yellow', bold=True)
 
         for record in zone.nodes:
             absolute_url = record.derelativize(zone.origin).to_text(omit_final_dot=True)
@@ -242,27 +250,21 @@ def ping_domains(ctx, timeout, access_token, output_file, data_format, verbose):
             url_https = 'https://' + absolute_url
 
             for url in [url_http, url_https]:
-                click.secho('- {}'.format(url), bold=True)
-
                 # Do our best to specify why the request crashes, if it does
                 try:
+                    error = None
                     response = requests.get(url, timeout=timeout, stream=True)
                 except requests.exceptions.Timeout as e:
-                    click.secho("    Request timed out", fg='red')
-                    if verbose:
-                        click.echo('    {}'.format(repr(e)))
+                    error = ("Request timed out", e)
                 except requests.exceptions.SSLError as e:
-                    click.secho("    SSL error", fg='red')
-                    if verbose:
-                        click.echo('    {}'.format(repr(e)))
+                    error = ("SSL error", e)
                 except requests.exceptions.ConnectionError as e:
-                    click.secho("    Connection error", fg='red')
-                    if verbose:
-                        click.echo('    {}'.format(repr(e)))
+                    error = ("Connection error", e)
                 except requests.exceptions.TooManyRedirects as e:
-                    click.secho("    Too many redirects", fg='red')
-                    if verbose:
-                        click.echo('    {}'.format(repr(e)))
+                    error = ("Too many redirects", e)
+
+                if error:
+                    row = [domain, url, None, None, None, None, None, error[0], error[1]]
                 else:
                     # Get the IP address from the underlying request socket
                     # Source: https://stackoverflow.com/a/36357465
@@ -271,18 +273,41 @@ def ping_domains(ctx, timeout, access_token, output_file, data_format, verbose):
                     else:
                         ip, port = response.raw._fp.fp.raw._sock.getpeername()
 
+                    status_code = '{} ({})'.format(response.status_code, response.reason)
                     droplet = '{} ({})'.format(do_droplets[ip][0], do_droplets[ip][1]) if ip in do_droplets else '-'
                     is_nginx = 'nginx' in response.text.lower()
 
-                    click_echo_kvp('    Status code', '{} ({})'.format(response.status_code, response.reason))
-                    click_echo_kvp('    IP', ip)
-                    click_echo_kvp('    Port', port)
-                    click_echo_kvp('    Droplet', droplet)
-                    click_echo_kvp('    Default NGINX', 'Yes' if is_nginx else 'No')
+                    row = [domain, url, status_code, ip, port, droplet, yes_no(is_nginx), None, None]
 
-        if n != len(do_domains):
-            click.echo()  # Print a new line between domains
+                dataset.append(row)
 
+                # Let's print it here as we go instead of one large dump at the end of the whole loop
+                if not output_file:
+                    last_row = dataset.dict[-1]
+
+                    click.secho('- {}'.format(last_row['URL']), bold=True)
+
+                    if last_row['Error']:
+                        click.secho("    {}".format(last_row['Error']), fg='red')
+                        if verbose:
+                            click.echo('    {}'.format(last_row['Exception']))
+                    else:
+                        for key, value in last_row.items():
+                            if value and key not in ['Domain', 'URL']:
+                                click_echo_kvp('    ' + key, value)
+
+                    if n != len(do_domains):
+                        click.echo()  # Print a new line between subdomains
+
+    # Export to file
+    if output_file:
+        output_file.write(dataset.export(data_format))
+        click.secho(
+            "{format} data was successfully exported to '{file_path}'".format(
+                format=data_format.upper(),
+                file_path=click.format_filename(output_file.name),
+            ), fg='green',
+        )
 
 if __name__ == '__main__':
     cli()

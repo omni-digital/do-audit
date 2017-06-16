@@ -9,14 +9,19 @@ import dateutil.parser
 import dns.zone
 import requests
 import six
+import tablib
 
 from do_audit.utils import add_options, get_do_manager, click_echo_kvp
 
 
 click.disable_unicode_literals_warning = True
+tablib_formats = ('json', 'xls', 'yaml', 'csv', 'dbf', 'tsv', 'html', 'latex', 'xlsx', 'ods')
 
 global_options = [
     click.option('--access-token', '-t', type=str, help="Digital Ocean API access token."),
+    click.option('--output-file', '-o', type=click.File('w'), help="Output file path."),
+    click.option('--data-format', '-f', type=click.Choice(tablib_formats), default='csv',
+                 help="Output file dat format."),
     click.option('--verbose', '-v', is_flag=True, help="Show extra information."),
 ]
 
@@ -39,7 +44,7 @@ def cli(ctx, access_token, **kwargs):
 @cli.command()
 @add_options(global_options)
 @click.pass_context
-def account(ctx, access_token, verbose):
+def account(ctx, access_token, output_file, data_format, verbose):
     """Show basic account info"""
     if not ctx.obj:
         ctx.obj = get_do_manager(access_token)
@@ -54,19 +59,36 @@ def account(ctx, access_token, verbose):
     if do_account.status_message:
         status += ' ({})'.format(do_account.status_message)
 
-    click_echo_kvp('Email', email)
-    click_echo_kvp('Status', status)
-    click_echo_kvp('Droplet limit', do_account.droplet_limit)
-
+    # Create dataset with the data we want
+    headers = ['Email', 'Status', 'Droplet limit']
+    row = [email, status, do_account.droplet_limit]
     if verbose:
-        click_echo_kvp('Floating IP limit', do_account.floating_ip_limit)
-        click_echo_kvp('UUID', do_account.uuid)
+        headers += ['Floating IP limit', 'UUID']
+        row += [do_account.floating_ip_limit, do_account.uuid]
+
+    dataset = tablib.Dataset(headers=headers)
+    dataset.append(row)
+
+    # Save to file
+    if output_file:
+        output_file.write(dataset.export(data_format))
+        click.secho(
+            "{format} data was successfully exported to '{file_path}'".format(
+                format=data_format.upper(),
+                file_path=click.format_filename(output_file.name),
+            ), fg='green',
+        )
+        return ctx.exit()
+
+    # Print dataset to stdout
+    for key, value in dataset.dict[0].items():
+        click_echo_kvp(key, value)
 
 
 @cli.command()
 @add_options(global_options)
 @click.pass_context
-def droplets(ctx, access_token, verbose):
+def droplets(ctx, access_token, output_file, data_format, verbose):
     """List your droplets"""
     if not ctx.obj:
         ctx.obj = get_do_manager(access_token)
@@ -111,7 +133,7 @@ def droplets(ctx, access_token, verbose):
 @cli.command()
 @add_options(global_options)
 @click.pass_context
-def domains(ctx, access_token, verbose):
+def domains(ctx, access_token, output_file, data_format, verbose):
     """List your domains"""
     if not ctx.obj:
         ctx.obj = get_do_manager(access_token)
@@ -150,7 +172,7 @@ def domains(ctx, access_token, verbose):
 @click.option('--timeout', '-t', type=int, default=3, help="How many seconds to wait for the server before giving up.")
 @add_options(global_options)
 @click.pass_context
-def ping_domains(ctx, timeout, access_token, verbose):
+def ping_domains(ctx, timeout, access_token, output_file, data_format, verbose):
     """Ping your domains and see what's the response"""
     if not ctx.obj:
         ctx.obj = get_do_manager(access_token)
@@ -176,6 +198,7 @@ def ping_domains(ctx, timeout, access_token, verbose):
             for url in [url_http, url_https]:
                 click.secho('- {}'.format(url), bold=True)
 
+                # Do our best to specify why the request crashes, if it does
                 try:
                     response = requests.get(url, timeout=timeout, stream=True)
                 except requests.exceptions.Timeout as e:
@@ -195,6 +218,7 @@ def ping_domains(ctx, timeout, access_token, verbose):
                     if verbose:
                         click.echo('    {}'.format(repr(e)))
                 else:
+                    # Get the IP address from the underlying request socket
                     # Source: https://stackoverflow.com/a/36357465
                     if six.PY2:
                         ip, port = response.raw._fp.fp._sock.getpeername()

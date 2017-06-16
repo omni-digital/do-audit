@@ -60,6 +60,7 @@ setup(
         'python-digitalocean>=1.11',
         'requests>=2.18.1',
         'six>=1.10.0',
+        'tablib>=0.11.5',
     ],
     extras_require={
         'testing': [

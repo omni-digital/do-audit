@@ -11,7 +11,7 @@ import requests
 import six
 import tablib
 
-from do_audit.utils import add_options, get_do_manager, click_echo_kvp
+from do_audit.utils import add_options, get_do_manager, click_echo_kvp, yes_no, droplet_url
 
 
 click.disable_unicode_literals_warning = True
@@ -69,7 +69,7 @@ def account(ctx, access_token, output_file, data_format, verbose):
     dataset = tablib.Dataset(headers=headers)
     dataset.append(row)
 
-    # Save to file
+    # Export to file
     if output_file:
         output_file.write(dataset.export(data_format))
         click.secho(
@@ -78,11 +78,10 @@ def account(ctx, access_token, output_file, data_format, verbose):
                 file_path=click.format_filename(output_file.name),
             ), fg='green',
         )
-        return ctx.exit()
-
     # Print dataset to stdout
-    for key, value in dataset.dict[0].items():
-        click_echo_kvp(key, value)
+    else:
+        for key, value in dataset.dict[0].items():
+            click_echo_kvp(key, value)
 
 
 @cli.command()
@@ -95,9 +94,18 @@ def droplets(ctx, access_token, output_file, data_format, verbose):
 
     do_droplets = ctx.obj.get_all_droplets()
 
+    # Create dataset with the data we want
+    headers = ['Name', 'Status', 'OS', 'IP', 'CPU', 'Memory', 'Disk']
+    if verbose:
+        headers += ['Tags', 'Backups', 'Locked', 'Monitoring', 'Features', 'Region']
+    headers += ['URL', 'Created at']
+
+    dataset = tablib.Dataset(headers=headers)
+
     for n, droplet in enumerate(do_droplets, start=1):
         created_at = dateutil.parser.parse(droplet.created_at)
 
+        # Try to guess droplet OS
         if droplet.kernel:
             do_os = droplet.kernel.get('name', 'unknown')
         elif droplet.image:
@@ -105,29 +113,45 @@ def droplets(ctx, access_token, output_file, data_format, verbose):
         else:
             do_os = 'unknown'
 
-        click.secho(
-            '# {} ({})'.format(droplet.name, droplet.status),
-            fg='yellow', bold=True,
-        )
-        click_echo_kvp('OS', do_os)
-        click_echo_kvp('IP', droplet.ip_address)
-        click_echo_kvp('CPU', droplet.vcpus)
-        click_echo_kvp('Memory', str(droplet.memory) + ' MB')
-        click_echo_kvp('Disk', str(droplet.disk) + ' GB')
-
+        # Generate human readable droplet info row
+        row = [
+            droplet.name, droplet.status, do_os, droplet.ip_address, droplet.vcpus,
+            str(droplet.memory) + ' MB', str(droplet.disk) + ' GB',
+        ]
         if verbose:
-            click_echo_kvp('Tags', ', '.join(droplet.tags))
-            click_echo_kvp('Backups', 'Yes' if droplet.backups else 'No')
-            click_echo_kvp('Locked', 'Yes' if droplet.locked else 'No')
-            click_echo_kvp('Monitoring', 'Yes' if droplet.monitoring else 'No')
-            click_echo_kvp('Features', ', '.join(droplet.features))
-            click_echo_kvp('Region', droplet.region['name'])
+            row += [
+                ', '.join(droplet.tags), yes_no(droplet.backups), yes_no(droplet.locked), yes_no(droplet.monitoring),
+                ', '.join(droplet.features), droplet.region['name'],
+            ]
+        row += [droplet_url(droplet.id), created_at.strftime('%a, %x %X')]
 
-        click_echo_kvp('URL', 'https://cloud.digitalocean.com/droplets/{}/graphs'.format(droplet.id))
-        click_echo_kvp('Created at', created_at.strftime('%a, %x %X'))
+        dataset.append(row)
 
-        if n != len(do_droplets):
-            click.echo()  # Print a new line between droplets
+    # Export to file
+    if output_file:
+        output_file.write(dataset.export(data_format))
+        click.secho(
+            "{format} data was successfully exported to '{file_path}'".format(
+                format=data_format.upper(),
+                file_path=click.format_filename(output_file.name),
+            ), fg='green',
+        )
+    # Print dataset to stdout
+    else:
+        for n, row in enumerate(dataset.dict, start=1):
+            droplet_name = row.pop('Name')
+            droplet_status = row.pop('Status')
+
+            click.secho(
+                '# {} ({})'.format(droplet_name, droplet_status),
+                fg='yellow', bold=True,
+            )
+
+            for key, value in row.items():
+                click_echo_kvp(key, value)
+
+            if n != len(dataset.dict):
+                click.echo()  # Print a new line between droplets
 
 
 @cli.command()

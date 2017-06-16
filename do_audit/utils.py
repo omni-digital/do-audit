@@ -78,3 +78,27 @@ def click_echo_kvp(key, value, padding=20, color='green'):
         ), fg=color) +
         str(value)
     )
+
+
+def yes_no(value):
+    """
+    Helper function for converting bool values to their English counterparts
+
+    :param value: boolean value
+    :type value: bool
+    :returns: yes or no
+    :rtype: str
+    """
+    return 'Yes' if value else 'No'
+
+
+def droplet_url(droplet_id):
+    """
+    Helper function for returning droplet URL based
+
+    :param droplet_id: droplet id
+    :type droplet_id: str
+    :returns: droplet URL
+    :rtype: str
+    """
+    return 'https://cloud.digitalocean.com/droplets/{}/graphs'.format(droplet_id)

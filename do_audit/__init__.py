@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 
 
 __title__ = 'do-audit'
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 __author__ = 'Omni Digital'
 __license__ = 'MIT License'
 __url__ = 'https://github.com/omni-digital/do-audit'

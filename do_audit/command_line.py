@@ -164,12 +164,14 @@ def domains(ctx, access_token, output_file, data_format, verbose):
 
     do_domains = ctx.obj.get_all_domains()
 
+    # Create dataset with the data we want
+    headers = ['Domain', 'Subdomain', 'Record type', 'Destination']
+    dataset = tablib.Dataset(headers=headers)
+
     for n, domain in enumerate(do_domains, start=1):
         # We could use Digital Ocean domain records API endpoint but parsing the zone file is *much* quicker
         zone = dns.zone.from_text(domain.zone_file)
-
         domain = zone.origin.to_text(omit_final_dot=True)
-        click.secho('# {}'.format(domain), fg='yellow', bold=True)
 
         for key, value in zone.nodes.items():
             subdomain = key.to_text(omit_final_dot=True)
@@ -180,16 +182,36 @@ def domains(ctx, access_token, output_file, data_format, verbose):
                     continue
 
                 for address in rd:
-                    click.echo(
-                        '{name:<35} {record_type:<10} {address}'.format(
-                            name=subdomain,
-                            record_type=dns.rdatatype.to_text(rd.rdtype),
-                            address=str(address),
-                        )
-                    )
+                    dataset.append([domain, subdomain, dns.rdatatype.to_text(rd.rdtype), str(address)])
 
-        if n != len(do_domains):
-            click.echo()  # Print a new line between domains
+    # Export to file
+    if output_file:
+        output_file.write(dataset.export(data_format))
+        click.secho(
+            "{format} data was successfully exported to '{file_path}'".format(
+                format=data_format.upper(),
+                file_path=click.format_filename(output_file.name),
+            ), fg='green',
+        )
+    # Print dataset to stdout
+    else:
+        domain = None
+        for n, row in enumerate(dataset.dict, start=1):
+            # Group the record by the domain
+            if domain != row['Domain']:
+                if n > 1:
+                    click.echo()  # Print a new line between droplets
+
+                domain = row['Domain']
+                click.secho('# {}'.format(domain), fg='yellow', bold=True)
+
+            click.echo(
+                '{subdomain:<35} {record_type:<10} {destination}'.format(
+                    subdomain=row['Subdomain'],
+                    record_type=row['Record type'],
+                    destination=row['Destination'],
+                )
+            )
 
 
 @cli.command(name='ping-domains')

@@ -1,4 +1,9 @@
 # do-audit
+[![Build status](https://img.shields.io/travis/omni-digital/do-audit.svg)][travis]
+[![PyPI version](https://img.shields.io/pypi/v/do-audit.svg)][pypi]
+[![Python versions](https://img.shields.io/pypi/pyversions/do-audit.svg)][pypi]
+[![License](https://img.shields.io/github/license/omni-digital/do-audit.svg)][license]
+
 Audit your Digital Ocean account and make sure you know what's up.
 
 The script can currently list your droplets and domains with their basic
@@ -131,7 +136,9 @@ Developed and maintained by [Omni Digital][omni digital].
 Released under [MIT License][license].
 
 
+[do access token]: https://www.digitalocean.com/community/tutorials/how-to-use-the-digitalocean-api-v2#how-to-generate-a-personal-access-token
 [github]: https://github.com/omni-digital/do-audit
 [license]: https://github.com/omni-digital/do-audit/blob/master/LICENSE
 [omni digital]: https://omni-digital.co.uk/
-[do access token]: https://www.digitalocean.com/community/tutorials/how-to-use-the-digitalocean-api-v2#how-to-generate-a-personal-access-token
+[pypi]: https://pypi.python.org/pypi/do-audit
+[travis]: https://travis-ci.org/omni-digital/do-audit

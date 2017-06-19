@@ -1,0 +1,69 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.18.1]
+    method: GET
+    uri: https://api.digitalocean.com/v2/account/?per_page=200
+  response:
+    body: {string: '{"account":{"droplet_limit":25,"floating_ip_limit":3,"email":"sam.hearn@omnifarious-group.com","uuid":"748487dede46e31726a5ad5521d18d191cff8338","email_verified":true,"status":"active","status_message":""}}'}
+    headers:
+      CF-RAY: [371687f77c5e1353-LHR]
+      Cache-Control: ['max-age=0, private, must-revalidate']
+      Connection: [keep-alive]
+      Content-Type: [application/json; charset=utf-8]
+      Date: ['Mon, 19 Jun 2017 12:35:57 GMT']
+      Etag: [W/"8769eca52f6225c463562abaaa9fe660"]
+      Ratelimit-Limit: ['5000']
+      Ratelimit-Remaining: ['4999']
+      Ratelimit-Reset: ['1497879356']
+      Server: [cloudflare-nginx]
+      Set-Cookie: ['__cfduid=dea815e36173fc69d5f2688d6ca69881d1497875756; expires=Tue,
+          19-Jun-18 12:35:56 GMT; path=/; domain=.digitalocean.com; HttpOnly']
+      Transfer-Encoding: [chunked]
+      X-Content-Type-Options: [nosniff]
+      X-Frame-Options: [SAMEORIGIN]
+      X-Gateway: [Edge-Gateway]
+      X-Request-Id: [09c4e3c2-74ec-49c5-8e15-787e98c4fe1a]
+      X-Response-From: [service]
+      X-Runtime: ['0.083144']
+      X-Xss-Protection: [1; mode=block]
+      content-length: ['206']
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.18.1]
+    method: GET
+    uri: https://api.digitalocean.com/v2/domains/?per_page=200
+  response:
+    body: {string: '{"domains":[{"name":"example.com","ttl":1800,"zone_file":"$ORIGIN example.com.\n$TTL 1800\nexample.com. IN SOA ns1.digitalocean.com. hostmaster.example.com. 0000 0000 0000 0000 0000\nexample.com. 1800 IN A 192.168.0.1\nexample.com. 1800 IN NS ns1.digitalocean.com.\nexample.com. 1800 IN NS ns2.digitalocean.com.\nalinkfor.me. 1800 IN NS ns3.digitalocean.com.\nwww.example.com. 1800 IN A 192.168.0.1\nftp.example.com. 1800 IN A 192.168.0.1\n"},{"name":"example.co.","ttl":1800,"zone_file":"$ORIGIN example.co.uk.\n$TTL 1800\nexample.co.uk. IN SOA ns1.digitalocean.com. hostmaster.example.co.uk. 0000 0000 0000 0000 0000\nexample.co.uk. 1800 IN A 192.168.0.2\nexample.co.uk. 1800 IN NS ns1.digitalocean.com.\nexample.co.uk. 1800 IN NS ns2.digitalocean.com.\nexample.co.uk. 1800 IN NS ns3.digitalocean.com.\nwww.example.co.uk. 1800 IN A 192.168.0.2\nexample.co.uk. 1800 IN MX 1 aspmx.l.google.com.\nexample.co.uk. 1800 IN MX 5 alt1.aspmx.l.google.com.\nexample.co.uk. 1800 IN MX 5 alt2.aspmx.l.google.com.\nexample.co.uk. 1800 IN MX 10 aspmx2.googlemail.com.\nexample.co.uk. 1800 IN MX 10 aspmx3.googlemail.com.\nexample.co.uk.example.co.uk. 1800 IN TXT \"v=spf1 mx include:cmail1.com ~all\"\nexample.co.uk.example.co.uk. 1800 IN TXT \"google-site-verification=token\"\n"}],"links":{},"meta":{"total":2}}'}
+    headers:
+      CF-RAY: [371687faaeb3139b-LHR]
+      Cache-Control: ['max-age=0, private, must-revalidate']
+      Connection: [keep-alive]
+      Content-Type: [application/json; charset=utf-8]
+      Date: ['Mon, 19 Jun 2017 12:35:57 GMT']
+      Ratelimit-Limit: ['5000']
+      Ratelimit-Remaining: ['4998']
+      Ratelimit-Reset: ['1497879356']
+      Server: [cloudflare-nginx]
+      Set-Cookie: ['__cfduid=d06a3a68c85cdf67668b8e7c4711dc97d1497875757; expires=Tue,
+          19-Jun-18 12:35:57 GMT; path=/; domain=.digitalocean.com; HttpOnly']
+      Transfer-Encoding: [chunked]
+      X-Content-Type-Options: [nosniff]
+      X-Frame-Options: [SAMEORIGIN]
+      X-Gateway: [Edge-Gateway]
+      X-Request-Id: [5ab92ccb-45b0-47b8-bd14-f3fd4d9d5d25]
+      X-Response-From: [service]
+      X-Runtime: ['0.224724']
+      X-Xss-Protection: [1; mode=block]
+      content-length: ['20995']
+    status: {code: 200, message: OK}
+version: 1

@@ -1,0 +1,70 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.18.1]
+    method: GET
+    uri: https://api.digitalocean.com/v2/account/?per_page=200
+  response:
+    body: {string: '{"account":{"droplet_limit":25,"floating_ip_limit":3,"email":"user@example.com","uuid":"uuid","email_verified":true,"status":"active","status_message":""}}'}
+    headers:
+      CF-RAY: [37159f9ced791353-LHR]
+      Cache-Control: ['max-age=0, private, must-revalidate']
+      Connection: [keep-alive]
+      Content-Type: [application/json; charset=utf-8]
+      Date: ['Mon, 19 Jun 2017 09:57:20 GMT']
+      Etag: [W/"8769eca52f6225c463562abaaa9fe660"]
+      Ratelimit-Limit: ['5000']
+      Ratelimit-Remaining: ['4995']
+      Ratelimit-Reset: ['1497869172']
+      Server: [cloudflare-nginx]
+      Set-Cookie: ['__cfduid=da2ddb37a1a7f248d08926d36715474df1497866239; expires=Tue,
+          19-Jun-18 09:57:19 GMT; path=/; domain=.digitalocean.com; HttpOnly']
+      Transfer-Encoding: [chunked]
+      X-Content-Type-Options: [nosniff]
+      X-Frame-Options: [SAMEORIGIN]
+      X-Gateway: [Edge-Gateway]
+      X-Request-Id: [a5c56449-6130-4f79-bf50-8d80f2566ec3]
+      X-Response-From: [service]
+      X-Runtime: ['0.213092']
+      X-Xss-Protection: [1; mode=block]
+      content-length: ['206']
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.18.1]
+    method: GET
+    uri: https://api.digitalocean.com/v2/account/?per_page=200
+  response:
+    body: {string: '{"account":{"droplet_limit":25,"floating_ip_limit":3,"email":"user@example.com","uuid":"uuid","email_verified":true,"status":"active","status_message":""}}'}
+    headers:
+      CF-RAY: [37159fa1197f6b7f-LHR]
+      Cache-Control: ['max-age=0, private, must-revalidate']
+      Connection: [keep-alive]
+      Content-Type: [application/json; charset=utf-8]
+      Date: ['Mon, 19 Jun 2017 09:57:20 GMT']
+      Etag: [W/"8769eca52f6225c463562abaaa9fe660"]
+      Ratelimit-Limit: ['5000']
+      Ratelimit-Remaining: ['4994']
+      Ratelimit-Reset: ['1497869172']
+      Server: [cloudflare-nginx]
+      Set-Cookie: ['__cfduid=d08154878ea80e6c8732ed6046b9160361497866240; expires=Tue,
+          19-Jun-18 09:57:20 GMT; path=/; domain=.digitalocean.com; HttpOnly']
+      Transfer-Encoding: [chunked]
+      X-Content-Type-Options: [nosniff]
+      X-Frame-Options: [SAMEORIGIN]
+      X-Gateway: [Edge-Gateway]
+      X-Request-Id: [825e1ac0-f924-4c3e-a4fd-0c88f7f0d186]
+      X-Response-From: [service]
+      X-Runtime: ['0.130526']
+      X-Xss-Protection: [1; mode=block]
+      content-length: ['206']
+    status: {code: 200, message: OK}
+version: 1

@@ -1,18 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-Test do_audit.command_line.py file
+Test 'do_audit.command_line' file
 """
 from __future__ import unicode_literals
 
-import os
-from datetime import datetime
-from uuid import uuid4
-
 import pytest
-import digitalocean
 from click.testing import CliRunner
 
-from do_audit.command_line import cli, DO_ACCESS_TOKEN_ENV
+from do_audit.command_line import cli
 
 
 # Module fixtures
@@ -23,54 +18,83 @@ def runner():
 
 
 # Tests
-def test_incorrect_access_token(runner):
-    """Test invoking the script with incorrect access token"""
-    result = runner.invoke(
-        cli, args=['--access-token', str(uuid4()), 'account']
-    )
-
-    assert isinstance(result.exception, SystemExit)
-    assert result.exit_code == 1
-
-
-def test_account_subcommand(mocker, runner):
+@pytest.mark.vcr()
+class TestAccountSubcommand(object):
     """
-    Test invoking the script 'account' subcommand
+    Test 'account' subcommand
     """
-    do_manager_instance = mocker.MagicMock(autospec=digitalocean.Manager)
-    do_manager = mocker.patch('digitalocean.Manager', return_value=do_manager_instance)
-    do_manager_instance.get_account.return_value = mocker.MagicMock(autospec=digitalocean.Account)
+    def test_account_subcommand(self, runner):
+        """
+        Test invoking the script 'account' subcommand
+        """
+        result = runner.invoke(
+            cli, args=['account'],
+        )
 
-    result = runner.invoke(
-        cli, args=['account'],
-    )
+        assert result.exit_code == 0
+        assert result.output
 
-    assert result.exit_code == 0
-    assert result.output
+        assert result.output == (
+            "Email:              user@example.com\n"
+            "Status:             active\n"
+            "Droplet limit:      25\n"
+        )
 
-    do_manager.assert_called_once_with(token=os.getenv(DO_ACCESS_TOKEN_ENV))
-    do_manager_instance.get_account.assert_called_with()
+    def test_account_subcommand_verbose(self, runner):
+        """
+        Test invoking the script 'account' subcommand with verbose option
+        """
+        result = runner.invoke(
+            cli, args=['account', '-v'],
+        )
 
+        assert result.exit_code == 0
+        assert result.output
 
-def test_droplets_subcommand(mocker, runner):
-    """Test invoking the script 'droplets' subcommand"""
-    do_manager_instance = mocker.MagicMock(autospec=digitalocean.Manager)
-    do_manager = mocker.patch('digitalocean.Manager', return_value=do_manager_instance)
-    do_manager_instance.get_all_droplets.return_value = [
-        mocker.MagicMock(autospec=digitalocean.Droplet, created_at=datetime.now().isoformat()),
-        mocker.MagicMock(autospec=digitalocean.Droplet, created_at=datetime.now().isoformat()),
-    ]
+        assert result.output == (
+            "Email:              user@example.com\n"
+            "Status:             active\n"
+            "Droplet limit:      25\n"
+            "Floating IP limit:  3\n"
+            "UUID:               uuid\n"
+        )
 
-    result = runner.invoke(
-        cli, args=['droplets'],
-    )
+    def test_account_subcommand_export(self, tmpdir, runner):
+        """
+        Test invoking the script 'account' subcommand with export option
+        """
+        filepath = tmpdir.mkdir('do-audit').join('output_file')
 
-    assert result.exit_code == 0
-    assert result.output
+        result = runner.invoke(
+            cli, args=['account', '-o', str(filepath)],
+        )
 
-    do_manager.assert_called_once_with(token=os.getenv(DO_ACCESS_TOKEN_ENV))
-    do_manager_instance.get_all_droplets.assert_called_once_with()
+        assert result.exit_code == 0
+        assert result.output
 
+        assert result.output == "CSV data was successfully exported to '{}'\n".format(str(filepath))
 
-# TODO: Add 'domains' and 'ping-domains' subcommands tests
-# TODO: Mock API responses with example responses from DigitalOcean docs
+        assert filepath.read() == (
+            "Email,Status,Droplet limit\n"
+            "user@example.com,active,25\n"
+        )
+
+    def test_account_subcommand_export_verbose(self, tmpdir, runner):
+        """
+        Test invoking the script 'account' subcommand with export option
+        """
+        filepath = tmpdir.mkdir('do-audit').join('output_file')
+
+        result = runner.invoke(
+            cli, args=['account', '-v', '-o', str(filepath)],
+        )
+
+        assert result.exit_code == 0
+        assert result.output
+
+        assert result.output == "CSV data was successfully exported to '{}'\n".format(str(filepath))
+
+        assert filepath.read() == (
+            "Email,Status,Droplet limit,Floating IP limit,UUID\n"
+            "user@example.com,active,25,3,uuid\n"
+        )

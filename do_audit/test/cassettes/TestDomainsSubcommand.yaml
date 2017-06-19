@@ -9,7 +9,7 @@ interactions:
     method: GET
     uri: https://api.digitalocean.com/v2/account/?per_page=200
   response:
-    body: {string: '{"account":{"droplet_limit":25,"floating_ip_limit":3,"email":"sam.hearn@omnifarious-group.com","uuid":"748487dede46e31726a5ad5521d18d191cff8338","email_verified":true,"status":"active","status_message":""}}'}
+    body: {string: '{"account":{"droplet_limit":25,"floating_ip_limit":3,"email":"user@example.com","uuid":"uuid","email_verified":true,"status":"active","status_message":""}}'}
     headers:
       CF-RAY: [371687f77c5e1353-LHR]
       Cache-Control: ['max-age=0, private, must-revalidate']

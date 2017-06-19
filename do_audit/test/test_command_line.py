@@ -28,7 +28,7 @@ class TestAccountSubcommand(object):
         Test invoking the script 'account' subcommand
         """
         result = runner.invoke(
-            cli, args=['account'],
+            cli, args=['account', '-t', 'token'],
         )
 
         assert result.exit_code == 0
@@ -45,7 +45,7 @@ class TestAccountSubcommand(object):
         Test invoking the script 'account' subcommand with verbose option
         """
         result = runner.invoke(
-            cli, args=['account', '-v'],
+            cli, args=['account', '-v', '-t', 'token'],
         )
 
         assert result.exit_code == 0
@@ -66,7 +66,7 @@ class TestAccountSubcommand(object):
         filepath = tmpdir.mkdir('do-audit').join('output_file')
 
         result = runner.invoke(
-            cli, args=['account', '-o', str(filepath)],
+            cli, args=['account', '-o', str(filepath), '-t', 'token'],
         )
 
         assert result.exit_code == 0
@@ -86,7 +86,7 @@ class TestAccountSubcommand(object):
         filepath = tmpdir.mkdir('do-audit').join('output_file')
 
         result = runner.invoke(
-            cli, args=['account', '-v', '-o', str(filepath)],
+            cli, args=['account', '-v', '-o', str(filepath), '-t', 'token'],
         )
 
         assert result.exit_code == 0
@@ -110,7 +110,7 @@ class TestDropletsSubcommand(object):
         Test invoking the script 'droplets' subcommand
         """
         result = runner.invoke(
-            cli, args=['droplets'],
+            cli, args=['droplets', '-t', 'token'],
         )
 
         assert result.exit_code == 0
@@ -141,7 +141,7 @@ class TestDropletsSubcommand(object):
         Test invoking the script 'droplets' subcommand with verbose option
         """
         result = runner.invoke(
-            cli, args=['droplets', '-v'],
+            cli, args=['droplets', '-v', '-t', 'token'],
         )
 
         assert result.exit_code == 0
@@ -186,7 +186,7 @@ class TestDropletsSubcommand(object):
         filepath = tmpdir.mkdir('do-audit').join('output_file')
 
         result = runner.invoke(
-            cli, args=['droplets', '-o', str(filepath)],
+            cli, args=['droplets', '-o', str(filepath), '-t', 'token'],
         )
 
         assert result.exit_code == 0
@@ -207,7 +207,7 @@ class TestDropletsSubcommand(object):
         filepath = tmpdir.mkdir('do-audit').join('output_file')
 
         result = runner.invoke(
-            cli, args=['droplets', '-v', '-o', str(filepath)],
+            cli, args=['droplets', '-v', '-o', str(filepath), '-t', 'token'],
         )
 
         assert result.exit_code == 0
@@ -232,7 +232,7 @@ class TestDomainsSubcommand(object):
         Test invoking the script 'domains' subcommand
         """
         result = runner.invoke(
-            cli, args=['domains'],
+            cli, args=['domains', '-t', 'token'],
         )
 
         assert result.exit_code == 0
@@ -253,7 +253,7 @@ class TestDomainsSubcommand(object):
         Test invoking the script 'domains' subcommand with verbose option
         """
         result = runner.invoke(
-            cli, args=['domains', '-v'],
+            cli, args=['domains', '-v', '-t', 'token'],
         )
 
         assert result.exit_code == 0
@@ -290,7 +290,7 @@ class TestDomainsSubcommand(object):
         filepath = tmpdir.mkdir('do-audit').join('output_file')
 
         result = runner.invoke(
-            cli, args=['domains', '-o', str(filepath)],
+            cli, args=['domains', '-o', str(filepath), '-t', 'token'],
         )
 
         assert result.exit_code == 0
@@ -313,7 +313,7 @@ class TestDomainsSubcommand(object):
         filepath = tmpdir.mkdir('do-audit').join('output_file')
 
         result = runner.invoke(
-            cli, args=['domains', '-v', '-o', str(filepath)],
+            cli, args=['domains', '-v', '-o', str(filepath), '-t', 'token'],
         )
 
         assert result.exit_code == 0

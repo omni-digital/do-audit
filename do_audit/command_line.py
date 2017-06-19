@@ -4,6 +4,8 @@ do-audit command line utility related code
 """
 from __future__ import unicode_literals
 
+import os
+
 import click
 import dns.zone
 import requests
@@ -19,7 +21,7 @@ tablib_formats = ('json', 'xls', 'yaml', 'csv', 'dbf', 'tsv', 'html', 'latex', '
 
 global_options = [
     click.option('--access-token', '-t', type=str, help="Digital Ocean API access token."),
-    click.option('--output-file', '-o', type=click.File('w'), help="Output file path."),
+    click.option('--output-file', '-o', type=click.File('wb'), help="Output file path."),
     click.option('--data-format', '-f', type=click.Choice(tablib_formats), default='csv',
                  help="Output file dat format."),
     click.option('--verbose', '-v', is_flag=True, help="Show extra information."),
@@ -54,7 +56,9 @@ def account(ctx, access_token, output_file, data_format, verbose):
 
     # Export to file
     if output_file:
-        output_file.write(dataset.export(data_format))
+        export_kwargs = {'lineterminator': os.linesep} if data_format == 'csv' else {}
+        output_file.write(dataset.export(data_format, **export_kwargs).encode())
+
         click.secho(
             "{format} data was successfully exported to '{file_path}'".format(
                 format=data_format.upper(),
@@ -80,7 +84,9 @@ def droplets(ctx, access_token, output_file, data_format, verbose):
 
     # Export to file
     if output_file:
-        output_file.write(dataset.export(data_format))
+        export_kwargs = {'lineterminator': os.linesep} if data_format == 'csv' else {}
+        output_file.write(dataset.export(data_format, **export_kwargs).encode())
+
         click.secho(
             "{format} data was successfully exported to '{file_path}'".format(
                 format=data_format.upper(),
@@ -119,7 +125,9 @@ def domains(ctx, access_token, output_file, data_format, verbose):
 
     # Export to file
     if output_file:
-        output_file.write(dataset.export(data_format))
+        export_kwargs = {'lineterminator': os.linesep} if data_format == 'csv' else {}
+        output_file.write(dataset.export(data_format, **export_kwargs).encode())
+
         click.secho(
             "{format} data was successfully exported to '{file_path}'".format(
                 format=data_format.upper(),
@@ -234,7 +242,9 @@ def ping_domains(ctx, timeout, access_token, output_file, data_format, verbose):
 
     # Export to file
     if output_file:
-        output_file.write(dataset.export(data_format))
+        export_kwargs = {'lineterminator': os.linesep} if data_format == 'csv' else {}
+        output_file.write(dataset.export(data_format, **export_kwargs).encode())
+
         click.secho(
             "{format} data was successfully exported to '{file_path}'".format(
                 format=data_format.upper(),

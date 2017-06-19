@@ -1,6 +1,9 @@
+# -*- coding: utf-8 -*-
 """
 do-audit py.test config
 """
+from __future__ import unicode_literals
+
 import pytest
 
 

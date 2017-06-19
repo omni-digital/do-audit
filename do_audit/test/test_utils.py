@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Test do_audit.utils file
+Test 'do_audit.utils' file
 """
 from __future__ import unicode_literals
 

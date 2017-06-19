@@ -241,8 +241,7 @@ class TestDomainsSubcommand(object):
         assert result.output == (
             '# example.com\n'
             '@                                   A          192.168.0.1\n'
-            'ftp                                 A          192.168.0.1\n'
-            'www                                 A          192.168.0.1\n'
+            'blog                                A          192.168.0.1\n'
             '\n'
             '# example.co.uk\n'
             '@                                   A          192.168.0.2\n'
@@ -266,8 +265,7 @@ class TestDomainsSubcommand(object):
             '@                                   A          192.168.0.1\n'
             '@                                   NS         ns1.digitalocean.com.\n'
             '@                                   NS         ns2.digitalocean.com.\n'
-            'ftp                                 A          192.168.0.1\n'
-            'www                                 A          192.168.0.1\n'
+            'blog                                A          192.168.0.1\n'
             '\n'
             '# example.co.uk\n'
             '@                                   SOA        ns1.digitalocean.com. hostmaster 0 0 0 0 0\n'
@@ -303,8 +301,7 @@ class TestDomainsSubcommand(object):
         assert filepath.read() == (
             'Domain,Subdomain,Record type,Destination\n'
             'example.com,@,A,192.168.0.1\n'
-            'example.com,ftp,A,192.168.0.1\n'
-            'example.com,www,A,192.168.0.1\n'
+            'example.com,blog,A,192.168.0.1\n'
             'example.co.uk,@,A,192.168.0.2\n'
             'example.co.uk,www,A,192.168.0.2\n'
         )
@@ -330,8 +327,7 @@ class TestDomainsSubcommand(object):
             'example.com,@,A,192.168.0.1\n'
             'example.com,@,NS,ns1.digitalocean.com.\n'
             'example.com,@,NS,ns2.digitalocean.com.\n'
-            'example.com,ftp,A,192.168.0.1\n'
-            'example.com,www,A,192.168.0.1\n'
+            'example.com,blog,A,192.168.0.1\n'
             'example.co.uk,@,SOA,ns1.digitalocean.com. hostmaster 0 0 0 0 0\n'
             'example.co.uk,@,A,192.168.0.2\n'
             'example.co.uk,@,NS,ns1.digitalocean.com.\n'
@@ -346,3 +342,6 @@ class TestDomainsSubcommand(object):
             'example.co.uk,example.co.uk,TXT,"""v=spf1 mx include:cmail1.com ~all"""\n'
             'example.co.uk,example.co.uk,TXT,"""google-site-verification=token"""\n'
         )
+
+
+# TODO: Add tests for `ping_domains` subcommand

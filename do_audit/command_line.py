@@ -5,12 +5,12 @@ do-audit command line utility related code
 from __future__ import unicode_literals
 
 import click
-import dateutil.parser
 import dns.zone
 import requests
 import six
 import tablib
 
+from do_audit import api
 from do_audit.utils import add_options, get_do_manager, click_echo_kvp, yes_no, droplet_url
 
 
@@ -48,26 +48,9 @@ def account(ctx, access_token, output_file, data_format, verbose):
     """Show basic account info"""
     if not ctx.obj:
         ctx.obj = get_do_manager(access_token)
-
     do_account = ctx.obj.get_account()
 
-    email = do_account.email
-    if not do_account.email_verified:
-        email += ' (unverified)'
-
-    status = do_account.status
-    if do_account.status_message:
-        status += ' ({})'.format(do_account.status_message)
-
-    # Create dataset with the data we want
-    headers = ['Email', 'Status', 'Droplet limit']
-    row = [email, status, do_account.droplet_limit]
-    if verbose:
-        headers += ['Floating IP limit', 'UUID']
-        row += [do_account.floating_ip_limit, do_account.uuid]
-
-    dataset = tablib.Dataset(headers=headers)
-    dataset.append(row)
+    dataset = api.create_accounts_dataset(do_account, verbose=verbose)
 
     # Export to file
     if output_file:
@@ -91,41 +74,9 @@ def droplets(ctx, access_token, output_file, data_format, verbose):
     """List your droplets"""
     if not ctx.obj:
         ctx.obj = get_do_manager(access_token)
-
     do_droplets = ctx.obj.get_all_droplets()
 
-    # Create dataset with the data we want
-    headers = ['Name', 'Status', 'OS', 'IP', 'CPU', 'Memory', 'Disk']
-    if verbose:
-        headers += ['Tags', 'Backups', 'Locked', 'Monitoring', 'Features', 'Region']
-    headers += ['URL', 'Created at']
-
-    dataset = tablib.Dataset(headers=headers)
-
-    for droplet in do_droplets:
-        created_at = dateutil.parser.parse(droplet.created_at)
-
-        # Try to guess droplet OS
-        if droplet.kernel:
-            do_os = droplet.kernel.get('name', 'unknown')
-        elif droplet.image:
-            do_os = '{} {}'.format(droplet.image['distribution'], droplet.image['name'])
-        else:
-            do_os = 'unknown'
-
-        # Generate human readable droplet info row
-        row = [
-            droplet.name, droplet.status, do_os, droplet.ip_address, droplet.vcpus,
-            str(droplet.memory) + ' MB', str(droplet.disk) + ' GB',
-        ]
-        if verbose:
-            row += [
-                ', '.join(droplet.tags), yes_no(droplet.backups), yes_no(droplet.locked), yes_no(droplet.monitoring),
-                ', '.join(droplet.features), droplet.region['name'],
-            ]
-        row += [droplet_url(droplet.id), created_at.strftime('%a, %x %X')]
-
-        dataset.append(row)
+    dataset = api.create_droplets_dataset(do_droplets, verbose=verbose)
 
     # Export to file
     if output_file:
@@ -164,25 +115,7 @@ def domains(ctx, access_token, output_file, data_format, verbose):
 
     do_domains = ctx.obj.get_all_domains()
 
-    # Create dataset with the data we want
-    headers = ['Domain', 'Subdomain', 'Record type', 'Destination']
-    dataset = tablib.Dataset(headers=headers)
-
-    for domain in do_domains:
-        # We could use Digital Ocean domain records API endpoint but parsing the zone file is *much* quicker
-        zone = dns.zone.from_text(domain.zone_file)
-        domain = zone.origin.to_text(omit_final_dot=True)
-
-        for key, value in zone.nodes.items():
-            subdomain = key.to_text(omit_final_dot=True)
-
-            for rd in value.rdatasets:
-                # Non verbose output only contains A and CNAME records
-                if not verbose and rd.rdtype not in [dns.rdatatype.A, dns.rdatatype.CNAME]:
-                    continue
-
-                for address in rd:
-                    dataset.append([domain, subdomain, dns.rdatatype.to_text(rd.rdtype), str(address)])
+    dataset = api.create_domains_dataset(do_domains, verbose=verbose)
 
     # Export to file
     if output_file:
@@ -308,6 +241,7 @@ def ping_domains(ctx, timeout, access_token, output_file, data_format, verbose):
                 file_path=click.format_filename(output_file.name),
             ), fg='green',
         )
+
 
 if __name__ == '__main__':
     cli()

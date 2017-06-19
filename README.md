@@ -6,9 +6,11 @@
 
 Audit your Digital Ocean account and make sure you know what's up.
 
-The script can currently list your droplets and domains with their basic
-information, and has a `ping-domains` command which tries to send a test
-request to all your domains and checks the response for you.
+The script can currently list your droplets and domains information and has
+a `ping-domains` command which sends a test request to all your domains and
+checks the response for you.
+
+Built to suit our own needs - which it did - but feel free to propose or implement new features.
 
 ## Installation
 From PyPI (recommended):

@@ -111,7 +111,7 @@ $ cat account.csv
 Email,Status,Droplet limit
 user@example.com,active,25
 
-$ do-audit droplets -o droplets.csv -f json
+$ do-audit droplets -o droplets.json -f json
 JSON data was successfully exported to 'droplets.json'
 ```
 

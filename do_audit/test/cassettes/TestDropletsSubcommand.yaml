@@ -1,0 +1,69 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.18.1]
+    method: GET
+    uri: https://api.digitalocean.com/v2/account/?per_page=200
+  response:
+    body: {string: '{"account":{"droplet_limit":25,"floating_ip_limit":3,"email":"sam.hearn@omnifarious-group.com","uuid":"748487dede46e31726a5ad5521d18d191cff8338","email_verified":true,"status":"active","status_message":""}}'}
+    headers:
+      CF-RAY: [3715fe8b3f656a3d-LHR]
+      Cache-Control: ['max-age=0, private, must-revalidate']
+      Connection: [keep-alive]
+      Content-Type: [application/json; charset=utf-8]
+      Date: ['Mon, 19 Jun 2017 11:02:08 GMT']
+      Etag: [W/"8769eca52f6225c463562abaaa9fe660"]
+      Ratelimit-Limit: ['5000']
+      Ratelimit-Remaining: ['4975']
+      Ratelimit-Reset: ['1497869839']
+      Server: [cloudflare-nginx]
+      Set-Cookie: ['__cfduid=d83bee3e5872566624656b1de2f70ea7e1497870127; expires=Tue,
+          19-Jun-18 11:02:07 GMT; path=/; domain=.digitalocean.com; HttpOnly']
+      Transfer-Encoding: [chunked]
+      X-Content-Type-Options: [nosniff]
+      X-Frame-Options: [SAMEORIGIN]
+      X-Gateway: [Edge-Gateway]
+      X-Request-Id: [4e129dba-4ae1-4e5c-8c89-0c0054c8df3f]
+      X-Response-From: [service]
+      X-Runtime: ['0.088999']
+      X-Xss-Protection: [1; mode=block]
+      content-length: ['206']
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.18.1]
+    method: GET
+    uri: https://api.digitalocean.com/v2/droplets/?per_page=200
+  response:
+    body: {string: '{"droplets":[{"id":1,"name":"test-centos","memory":1024,"vcpus":1,"disk":30,"locked":false,"status":"off","kernel":{"id":377,"name":"CentOS 6.5 x64 vmlinuz-2.6.32-431.1.2.0.1.el6.x86_64","version":"2.6.32-431.1.2.0.1.el6.x86_64"},"created_at":"2014-03-17T09:10:24Z","features":["virtio"],"backup_ids":[],"next_backup_window":null,"snapshot_ids":[1],"image":{"id":1646467,"name":"CentOS 6.5 x64","distribution":"CentOS","slug":null,"public":false,"regions":["nyc1","ams1","sfo1","nyc2","ams2","sgp1"],"created_at":"2013-12-23T20:47:27Z","min_disk_size":20,"type":"snapshot","size_gigabytes":1.27},"volume_ids":[],"size":{"slug":"1gb","memory":1024,"vcpus":1,"disk":30,"transfer":2,"price_monthly":10,"price_hourly":0.01488,"regions":["ams2","ams3","blr1","fra1","lon1","nyc1","nyc2","nyc3","sfo1","sfo2","sgp1","tor1"],"available":true},"size_slug":"1gb","networks":{"v4":[{"ip_address":"192.169.1.0","netmask":"255.255.255.0","gateway":"192.169.1.1","type":"public"}],"v6":[]},"region":{"name":"Amsterdam 2","slug":"ams2","sizes":["512mb","1gb","2gb","4gb","8gb","16gb","32gb","48gb","64gb"],"features":["private_networking","backups","ipv6","metadata","install_agent"],"available":true},"tags":["to-delete"]},{"id":2,"name":"ubuntu-512mb-lon1-01","memory":512,"vcpus":1,"disk":20,"locked":false,"status":"active","kernel":null,"created_at":"2017-05-08T12:52:22Z","features":[],"backup_ids":[],"next_backup_window":null,"snapshot_ids":[],"image":{"id":24631554,"name":"16.04.2x 64","distribution":"Ubuntu","slug":null,"public":false,"regions":["nyc1","sfo1","nyc2","ams2","sgp1","lon1","nyc3","ams3","fra1","tor1","sfo2","blr1"],"created_at":"2017-05-04T21:52:36Z","min_disk_size":20,"type":"snapshot","size_gigabytes":0.29},"volume_ids":[],"size":{"slug":"512mb","memory":512,"vcpus":1,"disk":20,"transfer":1,"price_monthly":5,"price_hourly":0.00744,"regions":["ams2","ams3","blr1","fra1","lon1","nyc1","nyc2","nyc3","sfo1","sfo2","sgp1","tor1"],"available":true},"size_slug":"512mb","networks":{"v4":[{"ip_address":"192.168.1.0","netmask":"255.255.192.0","gateway":"192.168.1.1","type":"public"}],"v6":[]},"region":{"name":"London 1","slug":"lon1","sizes":["512mb","1gb","2gb","4gb","8gb","16gb","32gb","48gb","64gb"],"features":["private_networking","backups","ipv6","metadata","install_agent"],"available":true},"tags":["test-tag-1","test-tag-2"]}]}'}
+    headers:
+      CF-RAY: [3715fe8e68d36a3d-LHR]
+      Cache-Control: ['max-age=0, private, must-revalidate']
+      Connection: [keep-alive]
+      Content-Type: [application/json; charset=utf-8]
+      Date: ['Mon, 19 Jun 2017 11:02:10 GMT']
+      Ratelimit-Limit: ['5000']
+      Ratelimit-Remaining: ['4974']
+      Ratelimit-Reset: ['1497870169']
+      Server: [cloudflare-nginx]
+      Set-Cookie: ['__cfduid=d42286d82ffc29aa3b4a50fea9c252e571497870128; expires=Tue,
+          19-Jun-18 11:02:08 GMT; path=/; domain=.digitalocean.com; HttpOnly']
+      Transfer-Encoding: [chunked]
+      X-Content-Type-Options: [nosniff]
+      X-Frame-Options: [SAMEORIGIN]
+      X-Gateway: [Edge-Gateway]
+      X-Request-Id: [5f61eb9e-a75e-4711-9ed8-31bfc9c24076]
+      X-Response-From: [service]
+      X-Runtime: ['1.824768']
+      X-Xss-Protection: [1; mode=block]
+      content-length: ['28810']
+    status: {code: 200, message: OK}
+version: 1

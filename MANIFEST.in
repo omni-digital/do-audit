@@ -3,4 +3,5 @@ include *.txt
 include LICENSE
 include tox.ini
 recursive-include do_audit *.py
+recursive-include do_audit *.yaml
 recursive-include requirements *.txt

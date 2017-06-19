@@ -26,7 +26,7 @@ and either save it as an environment variable (`$ export DO_ACCESS_TOKEN='...'`)
 or pass it explicitly (`do-audit -t '...'`) with each command.
 Everything else should be pretty straightforward:
 
-```shell
+```
 $ do-audit --help 
 Usage: do-audit [OPTIONS] COMMAND [ARGS]...
 
@@ -53,7 +53,7 @@ Commands:
 ## Examples
 The script has four subcommands, all with the same available options:
 
-```shell
+```
 $ do-audit account
 Email:              user@example.com
 Status:             active
@@ -62,7 +62,7 @@ Droplet limit:      25
 
 Each command has a `--verbose` option that shows more information:
 
-```shell
+```
 $ do-audit account -v
 Email:              user@example.com
 Status:             active
@@ -73,7 +73,7 @@ UUID:               uuid
 
 Both `domains` and `droplets` subcommands work the same way:
 
-```shell
+```
 $ do-audit droplets
 # ubuntu-512mb-lon1-01 (active)
 OS:                 Ubuntu 16.04.2x 64
@@ -96,7 +96,7 @@ www                                 A          192.168.0.2
 
 All commands can be exported to a file:
 
-```shell
+```
 $ do-audit account -o account.csv
 CSV data was successfully exported to 'account.csv'
 
@@ -105,7 +105,7 @@ Email,Status,Droplet limit
 user@example.com,active,25
 
 $ do-audit droplets -o droplets.csv -f json
-JSON data was successfully exported to 'droplets.csv'
+JSON data was successfully exported to 'droplets.json'
 ```
 
 ## Tests
